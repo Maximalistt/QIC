@@ -1,0 +1,4 @@
+node_modules/
+qic.db
+*.db
+.env

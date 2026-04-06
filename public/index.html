@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QIC Messenger</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     LOGIN / REGISTER SCREEN
+═══════════════════════════════════════════════ -->
+<div id="screen-auth" class="screen active">
+  <div class="auth-container">
+    <div class="auth-header">
+      <div class="qic-logo-big">
+        <div class="flower-logo">
+          <span class="petal p1"></span>
+          <span class="petal p2"></span>
+          <span class="petal p3"></span>
+          <span class="petal p4"></span>
+          <span class="petal-center"></span>
+        </div>
+        <div class="logo-text">QIC</div>
+        <div class="logo-tagline">I seek you</div>
+      </div>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">New User</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="tab-login" class="auth-form active">
+      <div class="form-group">
+        <label>QIC Number (UIN):</label>
+        <input type="text" id="login-uin" placeholder="Your QIC Number" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label>Password:</label>
+        <input type="password" id="login-password" placeholder="Password">
+      </div>
+      <div class="form-check">
+        <input type="checkbox" id="login-remember" checked>
+        <label for="login-remember">Remember me</label>
+      </div>
+      <div class="form-error" id="login-error"></div>
+      <div class="auth-buttons">
+        <button class="btn-primary" onclick="doLogin()">Connect</button>
+      </div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="tab-register" class="auth-form">
+      <div class="form-group">
+        <label>Nickname: <span class="required">*</span></label>
+        <input type="text" id="reg-nickname" placeholder="Your nickname" maxlength="32">
+      </div>
+      <div class="form-group">
+        <label>Password: <span class="required">*</span></label>
+        <input type="password" id="reg-password" placeholder="Password" maxlength="32">
+      </div>
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" id="reg-email" placeholder="your@email.com">
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>First Name:</label>
+          <input type="text" id="reg-firstname" maxlength="32">
+        </div>
+        <div class="form-group half">
+          <label>Last Name:</label>
+          <input type="text" id="reg-lastname" maxlength="32">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Age:</label>
+          <input type="number" id="reg-age" min="0" max="120">
+        </div>
+        <div class="form-group half">
+          <label>Gender:</label>
+          <select id="reg-gender">
+            <option value="unknown">Prefer not to say</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Country:</label>
+          <input type="text" id="reg-country" maxlength="32">
+        </div>
+        <div class="form-group half">
+          <label>City:</label>
+          <input type="text" id="reg-city" maxlength="32">
+        </div>
+      </div>
+      <div class="form-error" id="reg-error"></div>
+      <div class="auth-buttons">
+        <button class="btn-primary" onclick="doRegister()">Register</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MAIN CONTACT LIST WINDOW
+═══════════════════════════════════════════════ -->
+<div id="screen-main" class="screen">
+  <div class="qic-window" id="main-window">
+    <!-- Title Bar -->
+    <div class="win-titlebar">
+      <div class="win-icon">
+        <div class="flower-logo small">
+          <span class="petal p1"></span><span class="petal p2"></span>
+          <span class="petal p3"></span><span class="petal p4"></span>
+          <span class="petal-center"></span>
+        </div>
+      </div>
+      <span class="win-title">QIC</span>
+      <div class="win-controls">
+        <button class="win-btn minimize" onclick="toggleMinimize()" title="Minimize">_</button>
+      </div>
+    </div>
+
+    <!-- My Status Bar -->
+    <div class="my-status-bar">
+      <div class="my-avatar" id="my-avatar-btn" onclick="openMyProfile()">
+        <div class="avatar-placeholder" id="my-avatar-img">?</div>
+      </div>
+      <div class="my-info">
+        <div class="my-nickname" id="my-nickname">Loading...</div>
+        <div class="my-uin" id="my-uin-display">UIN: ---</div>
+      </div>
+      <div class="my-status-icon" id="my-status-icon" onclick="openStatusMenu()">
+        <div class="status-dot online" id="my-status-dot"></div>
+      </div>
+    </div>
+
+    <!-- Status Menu (dropdown) -->
+    <div id="status-menu" class="context-menu hidden">
+      <div class="cm-item" onclick="setMyStatus('online')"><span class="status-dot online small"></span> Online</div>
+      <div class="cm-item" onclick="setMyStatus('ffc')"><span class="status-dot ffc small"></span> Free for Chat</div>
+      <div class="cm-item" onclick="setMyStatus('away')"><span class="status-dot away small"></span> Away</div>
+      <div class="cm-item" onclick="setMyStatus('na')"><span class="status-dot na small"></span> Not Available</div>
+      <div class="cm-item" onclick="setMyStatus('dnd')"><span class="status-dot dnd small"></span> Do Not Disturb</div>
+      <div class="cm-item" onclick="setMyStatus('invisible')"><span class="status-dot invisible small"></span> Invisible</div>
+      <div class="cm-sep"></div>
+      <div class="cm-item" onclick="doLogout()">Sign Off</div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="tool-btn" onclick="openAddContact()" title="Add Contact">
+        <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="6" cy="5" r="3" fill="currentColor"/><path d="M1 13c0-3 2.5-5 5-5s5 2 5 5" fill="currentColor"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="10" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      <button class="tool-btn" onclick="openSearch()" title="Find People">
+        <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4" stroke="currentColor" stroke-width="2" fill="none"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      <button class="tool-btn" onclick="refreshContacts()" title="Refresh">
+        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M13 8A5 5 0 1 1 3 8" stroke="currentColor" stroke-width="2" fill="none"/><polygon points="3,4 7,4 3,8" fill="currentColor"/></svg>
+      </button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" onclick="openMyProfile()" title="My Profile">
+        <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="5" r="3" fill="currentColor"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="currentColor"/></svg>
+      </button>
+    </div>
+
+    <!-- Contact List -->
+    <div class="contacts-area" id="contacts-area">
+      <div class="contacts-loading">Connecting to QIC network...</div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+      <div class="bottom-info" id="bottom-info">QIC Messenger 2.0</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     CHAT WINDOW TEMPLATE (cloned per chat)
+═══════════════════════════════════════════════ -->
+<template id="chat-window-template">
+  <div class="qic-window chat-window" data-uin="">
+    <div class="win-titlebar">
+      <div class="win-icon small-flower">
+        <div class="flower-logo small">
+          <span class="petal p1"></span><span class="petal p2"></span>
+          <span class="petal p3"></span><span class="petal p4"></span>
+          <span class="petal-center"></span>
+        </div>
+      </div>
+      <span class="win-title chat-title">Chat</span>
+      <div class="win-controls">
+        <button class="win-btn info-btn" title="User Info">i</button>
+        <button class="win-btn close-btn" title="Close">×</button>
+      </div>
+    </div>
+
+    <div class="chat-userbar">
+      <div class="chat-avatar">
+        <div class="avatar-placeholder">?</div>
+      </div>
+      <div class="chat-userinfo">
+        <div class="chat-username"></div>
+        <div class="chat-status-line">
+          <span class="status-dot small"></span>
+          <span class="chat-status-text">Offline</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-messages"></div>
+
+    <div class="chat-typing-indicator hidden">
+      <span class="typing-text"></span>
+    </div>
+
+    <div class="chat-toolbar">
+      <button class="chat-tool-btn bold-btn" title="Bold" onclick="formatText(this, 'bold')"><b>B</b></button>
+      <button class="chat-tool-btn italic-btn" title="Italic" onclick="formatText(this, 'italic')"><i>I</i></button>
+      <button class="chat-tool-btn emoji-btn" title="Smileys" onclick="toggleEmojiPicker(this)">☺</button>
+      <div class="chat-tool-sep"></div>
+      <span class="char-counter">0</span>
+    </div>
+
+    <div class="emoji-picker hidden">
+      <div class="emoji-grid"></div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" placeholder="Type a message..." maxlength="2000"></textarea>
+      <div class="chat-send-row">
+        <button class="btn-send">Send</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ══════════════════════════════════════════════
+     ADD CONTACT DIALOG
+═══════════════════════════════════════════════ -->
+<div id="dialog-add-contact" class="dialog-overlay hidden">
+  <div class="qic-dialog">
+    <div class="dialog-titlebar">
+      <span>Add to Contact List</span>
+      <button class="dialog-close" onclick="closeDialog('dialog-add-contact')">×</button>
+    </div>
+    <div class="dialog-body">
+      <div class="wizard-step" id="add-step-1">
+        <p class="step-title">Enter the QIC number (UIN) or nickname of the person you want to add:</p>
+        <div class="form-group">
+          <label>QIC Number (UIN) or Nickname:</label>
+          <input type="text" id="add-uin-input" placeholder="e.g. 12345678 or nickname">
+        </div>
+        <div class="form-error" id="add-error"></div>
+        <div class="dialog-buttons">
+          <button class="btn-secondary" onclick="closeDialog('dialog-add-contact')">Cancel</button>
+          <button class="btn-primary" onclick="searchForAdd()">Search</button>
+        </div>
+      </div>
+
+      <div class="wizard-step hidden" id="add-step-2">
+        <p class="step-title">Search Results:</p>
+        <div id="add-search-results" class="search-results-list"></div>
+        <div class="dialog-buttons">
+          <button class="btn-secondary" onclick="showAddStep(1)">Back</button>
+          <button class="btn-primary" id="add-confirm-btn" onclick="confirmAddContact()" disabled>Add Selected</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SEARCH / FIND PEOPLE DIALOG
+═══════════════════════════════════════════════ -->
+<div id="dialog-search" class="dialog-overlay hidden">
+  <div class="qic-dialog wide">
+    <div class="dialog-titlebar">
+      <span>Find People</span>
+      <button class="dialog-close" onclick="closeDialog('dialog-search')">×</button>
+    </div>
+    <div class="dialog-body">
+      <div class="search-form">
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Nickname:</label>
+            <input type="text" id="search-nickname" placeholder="Nickname">
+          </div>
+          <div class="form-group half">
+            <label>QIC Number:</label>
+            <input type="text" id="search-uin-field" placeholder="UIN">
+          </div>
+        </div>
+        <div class="dialog-buttons">
+          <button class="btn-primary" onclick="doSearch()">Search</button>
+          <button class="btn-secondary" onclick="clearSearch()">Clear</button>
+        </div>
+      </div>
+      <div id="search-results-area" class="search-results-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     USER INFO DIALOG
+═══════════════════════════════════════════════ -->
+<div id="dialog-user-info" class="dialog-overlay hidden">
+  <div class="qic-dialog">
+    <div class="dialog-titlebar">
+      <span id="user-info-title">User Info</span>
+      <button class="dialog-close" onclick="closeDialog('dialog-user-info')">×</button>
+    </div>
+    <div class="dialog-body" id="user-info-body">
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MY PROFILE DIALOG
+═══════════════════════════════════════════════ -->
+<div id="dialog-my-profile" class="dialog-overlay hidden">
+  <div class="qic-dialog">
+    <div class="dialog-titlebar">
+      <span>My Profile</span>
+      <button class="dialog-close" onclick="closeDialog('dialog-my-profile')">×</button>
+    </div>
+    <div class="dialog-body">
+      <div class="profile-tabs">
+        <button class="profile-tab active" onclick="switchProfileTab('general')">General</button>
+        <button class="profile-tab" onclick="switchProfileTab('details')">Details</button>
+      </div>
+
+      <div id="profile-tab-general" class="profile-tab-content active">
+        <div class="form-group">
+          <label>Nickname:</label>
+          <input type="text" id="profile-nickname" maxlength="32">
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label>First Name:</label>
+            <input type="text" id="profile-firstname" maxlength="32">
+          </div>
+          <div class="form-group half">
+            <label>Last Name:</label>
+            <input type="text" id="profile-lastname" maxlength="32">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Age:</label>
+            <input type="number" id="profile-age" min="0" max="120">
+          </div>
+          <div class="form-group half">
+            <label>Gender:</label>
+            <select id="profile-gender">
+              <option value="unknown">Not specified</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Status Message:</label>
+          <input type="text" id="profile-status-msg" maxlength="100" placeholder="What's on your mind?">
+        </div>
+      </div>
+
+      <div id="profile-tab-details" class="profile-tab-content">
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Country:</label>
+            <input type="text" id="profile-country" maxlength="32">
+          </div>
+          <div class="form-group half">
+            <label>City:</label>
+            <input type="text" id="profile-city" maxlength="32">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Homepage:</label>
+          <input type="text" id="profile-homepage" maxlength="200">
+        </div>
+        <div class="form-group">
+          <label>About Me:</label>
+          <textarea id="profile-about" maxlength="500" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="profile-uin-display">
+        <span>Your QIC Number: </span><strong id="profile-uin-num"></strong>
+      </div>
+
+      <div class="form-error" id="profile-error"></div>
+      <div class="dialog-buttons">
+        <button class="btn-secondary" onclick="closeDialog('dialog-my-profile')">Cancel</button>
+        <button class="btn-primary" onclick="saveProfile()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     NOTIFICATION POPUP
+═══════════════════════════════════════════════ -->
+<div id="notification-popup" class="notification hidden">
+  <div class="notification-icon">
+    <div class="flower-logo small">
+      <span class="petal p1"></span><span class="petal p2"></span>
+      <span class="petal p3"></span><span class="petal p4"></span>
+      <span class="petal-center"></span>
+    </div>
+  </div>
+  <div class="notification-content">
+    <div class="notification-title" id="notif-title"></div>
+    <div class="notification-text" id="notif-text"></div>
+  </div>
+  <button class="notification-close" onclick="hideNotification()">×</button>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     CHAT WINDOWS CONTAINER
+═══════════════════════════════════════════════ -->
+<div id="chat-windows-container"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
