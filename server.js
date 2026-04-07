@@ -308,6 +308,6 @@ function broadcastStatusToContacts(uin, status) {
   });
 }
 
-server.listen(PORT, () => {
-  console.log(`QIC Server running on http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`QIC Server running on http://0.0.0.0:${PORT}`);
 });
