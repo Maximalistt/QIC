@@ -1,7 +1,13 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const db = new Database(path.join(__dirname, '../qic.db'));
+const fs = require('fs');
+
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..');
+fs.mkdirSync(DATA_DIR, { recursive: true });
+
+const db = new Database(path.join(DATA_DIR, 'qic.db'));
+db.DATA_DIR = DATA_DIR;
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (

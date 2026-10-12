@@ -2,3 +2,4 @@ node_modules/
 qic.db
 *.db
 .env
+.jwt_secret

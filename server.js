@@ -15,7 +15,16 @@ const io = socketIo(server, {
   cors: { origin: '*' }
 });
 
-const JWT_SECRET = 'qic-secret-key-2001';
+const JWT_SECRET = process.env.JWT_SECRET || loadOrCreateSecret();
+
+function loadOrCreateSecret() {
+  const fs = require('fs');
+  const file = path.join(db.DATA_DIR, '.jwt_secret');
+  if (fs.existsSync(file)) return fs.readFileSync(file, 'utf8').trim();
+  const secret = require('crypto').randomBytes(48).toString('hex');
+  fs.writeFileSync(file, secret, { mode: 0o600 });
+  return secret;
+}
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
