@@ -162,7 +162,8 @@ function initSocket() {
   });
   socket.on('disconnect', () => setMyStatusDot('offline'));
 
-  socket.on('new_message', (msg) => {
+  socket.on('new_message', async (msg) => {
+    if (!contacts.some(c => c.uin === msg.sender_uin)) await refreshContacts();
     const chat = openChats[msg.sender_uin];
     if (chat) {
       appendMessage(chat, msg, false);

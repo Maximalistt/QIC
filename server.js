@@ -251,6 +251,12 @@ io.on('connection', (socket) => {
     const { to, message, message_type } = data;
     if (!to || !message || message.trim().length === 0) return;
     if (message.length > 2000) return;
+    if (!db.prepare('SELECT 1 FROM users WHERE uin = ?').get(to)) return;
+
+    db.prepare(`
+      INSERT OR IGNORE INTO contacts (owner_uin, contact_uin, group_name)
+      VALUES (?, ?, 'Not in list')
+    `).run(to, uin);
 
     const result = db.prepare(`
       INSERT INTO messages (sender_uin, receiver_uin, message, message_type)
